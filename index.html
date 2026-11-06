@@ -7,376 +7,336 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a; /* Глубокий синий */
+            --bg-color: #0f172a;
             --card-bg: #1e293b;
-            --accent: #6366f1; /* Индиго */
+            --accent: #6366f1;
             --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --success: #22c55e;
+            --cycle-pink: #ec4899;
+            --work-blue: #3b82f6;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); min-height: 100vh; padding-bottom: 20px; }
+        .app-container { max-width: 480px; margin: 0 auto; padding: 20px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 20px;
-        }
+        /* Экраны */
+        .screen { display: none; }
+        .screen.active { display: block; }
 
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        /* Экран выбора роли */
+        .role-screen h2 { font-size: 22px; margin-bottom: 8px; text-align: center; }
+        .role-screen p { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+        .role-card { background: var(--card-bg); border: 1px solid #334155; border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .role-card:active { transform: scale(0.98); border-color: var(--accent); }
+        .role-icon { font-size: 28px; }
+        .role-info h3 { font-size: 16px; margin-bottom: 2px; }
+        .role-info p { font-size: 12px; color: var(--text-muted); text-align: left; margin: 0; }
 
-        /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
+        /* Основной экран */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .greeting { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
+        .title { font-size: 24px; font-weight: 700; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
 
-        .greeting {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
+        .progress-section { display: flex; justify-content: center; margin-bottom: 32px; }
+        .circular-progress { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(var(--accent) var(--progress, 0%), #334155 0%); display: flex; align-items: center; justify-content: center; position: relative; }
+        .circular-progress::before { content: ""; position: absolute; width: 140px; height: 140px; border-radius: 50%; background-color: var(--bg-color); }
+        .progress-text { position: relative; text-align: center; }
+        .progress-text .big-number { font-size: 32px; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .progress-text .small-text { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
 
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Прогресс-круг */
-        .progress-section {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 32px;
-            position: relative;
-        }
-
-        .circular-progress {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: conic-gradient(var(--accent) var(--progress, 0%), #334155 0%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
-            transition: background 0.5s ease;
-        }
-
-        .circular-progress::before {
-            content: "";
-            position: absolute;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background-color: var(--bg-color);
-        }
-
-        .progress-text {
-            position: relative;
-            text-align: center;
-        }
-
-        .progress-text .big-number {
-            font-size: 36px;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .progress-text .small-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-
-        /* Список трекеров */
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .tracker-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .tracker-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s, opacity 0.3s;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .tracker-card.done {
-            opacity: 0.7;
-            border-color: var(--success);
-        }
-
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .tracker-list { display: flex; flex-direction: column; gap: 12px; }
+        .tracker-card { background: var(--card-bg); border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); }
+        .tracker-card.done { opacity: 0.7; border-color: var(--success); }
         .tracker-info { flex: 1; }
-        
-        .tracker-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
+        .tracker-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .tracker-streak { font-size: 12px; color: var(--text-muted); }
+        .check-btn { width: 44px; height: 44px; border-radius: 12px; border: 2px solid #475569; background: transparent; color: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .check-btn.done { background: var(--success); border-color: var(--success); color: white; }
 
-        .tracker-streak {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .add-btn { margin-top: 16px; width: 100%; padding: 16px; background: var(--card-bg); border: 1px dashed #475569; border-radius: 16px; color: var(--text-muted); font-size: 15px; cursor: pointer; }
 
-        .check-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            border: 2px solid #475569;
-            background: transparent;
-            color: transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.2s ease;
-        }
+        /* Экран цикла */
+        .cycle-header { text-align: center; margin-bottom: 20px; }
+        .cycle-header h2 { font-size: 22px; color: var(--cycle-pink); margin-bottom: 4px; }
+        .cycle-header p { font-size: 13px; color: var(--text-muted); }
+        .cycle-calendar { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        .calendar-day { padding: 8px 4px; border-radius: 8px; font-size: 13px; }
+        .calendar-day.header { color: var(--text-muted); font-size: 11px; font-weight: 600; }
+        .calendar-day.period { background: var(--cycle-pink); color: white; border-radius: 50%; }
+        .calendar-day.today { border: 2px solid var(--accent); }
+        .mark-btn { width: 100%; padding: 16px; background: var(--cycle-pink); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
+        .prediction-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border-left: 4px solid var(--cycle-pink); }
+        .prediction-card h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+        .prediction-card .big-date { font-size: 24px; font-weight: 700; color: var(--cycle-pink); }
+        .symptom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+        .symptom-btn { padding: 12px 8px; background: var(--card-bg); border: 1px solid #334155; border-radius: 12px; color: var(--text-main); font-size: 13px; cursor: pointer; text-align: center; }
+        .symptom-btn.active { border-color: var(--cycle-pink); background: rgba(236, 72, 153, 0.1); }
 
-        .check-btn.done {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-            transform: scale(1.05);
-        }
+        /* Экран Воронки (Работа) */
+        .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
+        .kanban-column { flex: 0 0 160px; background: var(--card-bg); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .kanban-column h3 { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kanban-card { background: #334155; padding: 10px; border-radius: 8px; font-size: 13px; cursor: pointer; border-left: 3px solid var(--work-blue); }
+        .kanban-card:active { opacity: 0.7; }
+        .kanban-add { background: transparent; border: 1px dashed #475569; color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 4px; }
 
-        .add-btn {
-            margin-top: 16px;
-            width: 100%;
-            padding: 16px;
-            background: var(--card-bg);
-            border: 1px dashed #475569;
-            border-radius: 16px;
-            color: var(--text-muted);
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .add-btn:active { transform: scale(0.98); }
-        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        /* Premium */
-        .premium-card {
-            margin-top: 24px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .premium-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            opacity: 0.5;
-        }
-
-        .premium-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #a855f7;
-        }
-
-        .premium-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .premium-btn {
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
-            transition: transform 0.2s;
-            width: 100%;
-        }
-
-        .premium-btn:active { transform: scale(0.98); }
+        .back-btn { background: transparent; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Шапка -->
-        <header>
-            <div>
-                <div class="greeting" id="greeting">Привет!</div>
-                <div class="title">Мой Дневник</div>
-            </div>
-            <div class="avatar" id="avatar">?</div>
-        </header>
-
-        <!-- Круговой прогресс -->
-        <div class="progress-section">
-            <div class="circular-progress" id="progress-circle" style="--progress: 0%;">
-                <div class="progress-text">
-                    <div class="big-number" id="progress-percent">0%</div>
-                    <div class="small-text">Выполнено</div>
+        <!-- ЭКРАН 1: Выбор роли -->
+        <div class="screen active" id="screen-role">
+            <div class="role-screen">
+                <h2>Кто ты?</h2>
+                <p>Выбери шаблон — и мы настроим дневник под тебя</p>
+                <div class="role-card" onclick="selectRole('health')">
+                    <div class="role-icon">💚</div>
+                    <div class="role-info"><h3>Слежу за здоровьем</h3><p>Сон, вода, настроение, таблетки</p></div>
+                </div>
+                <div class="role-card" onclick="selectRole('sport')">
+                    <div class="role-icon">🏋️</div>
+                    <div class="role-info"><h3>Я спортсмен</h3><p>Тренировки, растяжка, белок, вес</p></div>
+                </div>
+                <div class="role-card" onclick="selectRole('study')">
+                    <div class="role-icon">📚</div>
+                    <div class="role-info"><h3>Я учусь</h3><p>Чтение, учёба, концентрация</p></div>
+                </div>
+                <div class="role-card" onclick="selectRole('work')">
+                    <div class="role-icon">💼</div>
+                    <div class="role-info"><h3>Я работаю</h3><p>Воронка задач, фокус, перерывы</p></div>
+                </div>
+                <div class="role-card" onclick="selectRole('cycle')">
+                    <div class="role-icon">🌸</div>
+                    <div class="role-info"><h3>Я девушка</h3><p>Цикл, прогноз, настроение, симптомы</p></div>
                 </div>
             </div>
         </div>
 
-        <!-- Список -->
-        <div class="section-title">Мои привычки</div>
-        <div class="tracker-list" id="tracker-list">
-            <!-- Сюда будут вставляться карточки -->
+        <!-- ЭКРАН 2: Женский трекер -->
+        <div class="screen" id="screen-cycle">
+            <button class="back-btn" onclick="goBack()">← Назад</button>
+            <div class="cycle-header">
+                <h2>🌸 Мой Цикл</h2>
+                <p>Отмечай начало — мы посчитаем прогноз</p>
+            </div>
+            <div class="cycle-calendar">
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+            <button class="mark-btn" id="mark-period-btn">Отметить начало цикла (сегодня)</button>
+            <div class="prediction-card" id="prediction-card">
+                <h3>Следующий цикл ожидается:</h3>
+                <div class="big-date" id="next-period-date">—</div>
+            </div>
+            <div class="section-title">Как ты себя чувствуешь?</div>
+            <div class="symptom-grid" id="symptom-grid">
+                <button class="symptom-btn" onclick="toggleSymptom(this)">😊 Настроение</button>
+                <button class="symptom-btn" onclick="toggleSymptom(this)">😣 Боль</button>
+                <button class="symptom-btn" onclick="toggleSymptom(this)">⚡ Энергия</button>
+            </div>
         </div>
-        <button class="add-btn" id="add-btn">
-            <span>➕</span> Добавить новую привычку
-        </button>
 
-        <!-- Premium -->
-        <div class="premium-card">
-            <div class="premium-title">✨ Premium Доступ</div>
-            <div class="premium-desc">Безлимит привычек, детальная статистика и умные напоминания.</div>
-            <button class="premium-btn" id="premium-btn">Попробовать за 50 Stars</button>
+        <!-- ЭКРАН 3: Воронка (Работа) -->
+        <div class="screen" id="screen-work">
+            <button class="back-btn" onclick="goBack()">← Назад</button>
+            <header>
+                <div><div class="greeting">Воронка</div><div class="title">Мои задачи</div></div>
+            </header>
+            <div class="kanban-board" id="kanban-board">
+                <!-- Колонки будут здесь -->
+            </div>
+        </div>
+
+        <!-- ЭКРАН 4: Обычный трекер (для остальных ролей) -->
+        <div class="screen" id="screen-tracker">
+            <button class="back-btn" onclick="goBack()">← Назад</button>
+            <header>
+                <div><div class="greeting" id="greeting">Привет!</div><div class="title">Мой Дневник</div></div>
+                <div class="avatar" id="avatar">?</div>
+            </header>
+            <div class="progress-section">
+                <div class="circular-progress" id="progress-circle" style="--progress: 0%;">
+                    <div class="progress-text"><div class="big-number" id="progress-percent">0%</div><div class="small-text">Выполнено</div></div>
+                </div>
+            </div>
+            <div class="section-title">Мои привычки</div>
+            <div class="tracker-list" id="tracker-list"></div>
+            <button class="add-btn" id="add-btn">➕ Добавить привычку</button>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready(); 
-        tg.expand();
-
-        // Данные пользователя
+        tg.ready(); tg.expand();
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'Друг';
-        document.getElementById('greeting').textContent = `Привет, ${userName}`;
-        document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
+        const today = new Date();
+        const todayStr = today.toDateString();
 
-        // Локальное состояние
-        let trackers = JSON.parse(localStorage.getItem('myTrackers') || '[]');
-        const today = new Date().toDateString();
+        // --- Навигация ---
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        function goBack() { showScreen('screen-role'); }
 
-        function render() {
+        // --- Выбор роли ---
+        function selectRole(role) {
+            if (role === 'cycle') {
+                showScreen('screen-cycle');
+                renderCalendar();
+                loadCycleData();
+            } else if (role === 'work') {
+                showScreen('screen-work');
+                renderKanban();
+            } else {
+                showScreen('screen-tracker');
+                loadTemplate(role);
+                document.getElementById('greeting').textContent = `Привет, ${userName}`;
+                document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
+                renderTrackers();
+            }
+        }
+
+        // --- ЖЕНСКИЙ ТРЕКЕР ---
+        let cycleData = JSON.parse(localStorage.getItem('cycleData') || '{}');
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let html = daysOfWeek.map(d => `<div class="calendar-day header">${d}</div>`).join('');
+            const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+            for (let i = 0; i < startOffset; i++) html += `<div class="calendar-day"></div>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = new Date(year, month, d).toDateString();
+                const isPeriod = cycleData.periods && cycleData.periods.includes(dateStr);
+                const isToday = dateStr === todayStr;
+                html += `<div class="calendar-day ${isPeriod ? 'period' : ''} ${isToday ? 'today' : ''}">${d}</div>`;
+            }
+            grid.innerHTML = html;
+        }
+        function loadCycleData() {
+            const predEl = document.getElementById('next-period-date');
+            if (cycleData.lastPeriod) {
+                const last = new Date(cycleData.lastPeriod);
+                const next = new Date(last);
+                next.setDate(next.getDate() + 28);
+                predEl.textContent = next.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+            } else { predEl.textContent = 'Отметь начало'; }
+        }
+        document.getElementById('mark-period-btn').addEventListener('click', () => {
+            if (!cycleData.periods) cycleData.periods = [];
+            if (!cycleData.periods.includes(todayStr)) cycleData.periods.push(todayStr);
+            cycleData.lastPeriod = today.toISOString();
+            localStorage.setItem('cycleData', JSON.stringify(cycleData));
+            renderCalendar(); loadCycleData();
+            tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert('Отмечено! Прогноз обновлён 🌸');
+        });
+        function toggleSymptom(btn) {
+            btn.classList.toggle('active');
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // --- ВОРОНКА (РАБОТА) ---
+        let kanbanData = JSON.parse(localStorage.getItem('kanbanData') || '{"todo":[],"inprogress":[],"done":[]}');
+        const columns = [
+            { key: 'todo', title: 'Сделать' },
+            { key: 'inprogress', title: 'В работе' },
+            { key: 'done', title: 'Готово' }
+        ];
+        function renderKanban() {
+            const board = document.getElementById('kanban-board');
+            board.innerHTML = columns.map(col => {
+                const cards = kanbanData[col.key].map((task, i) => 
+                    `<div class="kanban-card" onclick="moveTask('${col.key}', ${i})">${task}</div>`
+                ).join('');
+                return `
+                <div class="kanban-column">
+                    <h3>${col.title}</h3>
+                    ${cards}
+                    <button class="kanban-add" onclick="addTask('${col.key}')">+ Добавить</button>
+                </div>`;
+            }).join('');
+        }
+        function addTask(colKey) {
+            const name = prompt('Название задачи:');
+            if (name && name.trim()) {
+                kanbanData[colKey].push(name.trim());
+                localStorage.setItem('kanbanData', JSON.stringify(kanbanData));
+                renderKanban();
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+        function moveTask(colKey, index) {
+            const task = kanbanData[colKey][index];
+            const nextMap = { 'todo': 'inprogress', 'inprogress': 'done', 'done': 'todo' };
+            const nextCol = nextMap[colKey];
+            kanbanData[colKey].splice(index, 1);
+            kanbanData[nextCol].push(task);
+            localStorage.setItem('kanbanData', JSON.stringify(kanbanData));
+            renderKanban();
+            tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        // --- ОБЫЧНЫЙ ТРЕКЕР ---
+        const templates = {
+            health: ['😴 Сон 8 часов', '💧 Вода 2 литра', '😊 Настроение', '💊 Витамины'],
+            sport: ['🏋️ Тренировка', '🧘 Растяжка', '🥩 Белок', '⚖️ Взвешивание'],
+            study: ['📖 Чтение 20 мин', '✍️ Учёба', '🎯 Концентрация']
+        };
+        let trackers = [];
+        function loadTemplate(role) {
+            if (templates[role]) trackers = templates[role].map(name => ({ name, lastDone: null, streak: 0 }));
+            else trackers = [];
+            localStorage.setItem('myTrackers', JSON.stringify(trackers));
+        }
+        function renderTrackers() {
             const list = document.getElementById('tracker-list');
             const circle = document.getElementById('progress-circle');
             const percentText = document.getElementById('progress-percent');
-
-            if (!trackers.length) {
-                list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 14px;">Добавь свою первую привычку!</div>`;
-                circle.style.setProperty('--progress', '0%');
-                percentText.textContent = '0%';
-                return;
-            }
-
-            // Рендер списка
+            if (!trackers.length) { list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);">Нет привычек</div>`; return; }
             list.innerHTML = trackers.map((t, i) => {
-                const done = t.lastDone === today;
-                return `
-                <div class="tracker-card ${done ? 'done' : ''}">
-                    <div class="tracker-info">
-                        <div class="tracker-name">${t.name}</div>
-                        <div class="tracker-streak">🔥 ${t.streak || 0} дней подряд</div>
-                    </div>
-                    <button class="check-btn ${done ? 'done' : ''}" onclick="toggle(${i})">
-                        ${done ? '✓' : ''}
-                    </button>
+                const done = t.lastDone === todayStr;
+                return `<div class="tracker-card ${done ? 'done' : ''}">
+                    <div class="tracker-info"><div class="tracker-name">${t.name}</div><div class="tracker-streak">🔥 ${t.streak || 0}</div></div>
+                    <button class="check-btn ${done ? 'done' : ''}" onclick="toggleTracker(${i})">${done ? '✓' : ''}</button>
                 </div>`;
             }).join('');
-
-            // Считаем прогресс на сегодня
-            const total = trackers.length;
-            const completed = trackers.filter(t => t.lastDone === today).length;
-            const percent = Math.round((completed / total) * 100);
-            
+            const completed = trackers.filter(t => t.lastDone === todayStr).length;
+            const percent = Math.round((completed / trackers.length) * 100);
             circle.style.setProperty('--progress', `${percent}%`);
             percentText.textContent = `${percent}%`;
         }
-
-        function toggle(i) {
+        function toggleTracker(i) {
             const t = trackers[i];
-            if (t.lastDone === today) {
-                // Отменяем
-                t.lastDone = null;
-                t.streak = Math.max(0, (t.streak || 1) - 1);
-            } else {
-                // Выполняем
-                t.lastDone = today;
-                t.streak = (t.streak || 0) + 1;
-                tg.HapticFeedback.notificationOccurred('success'); // Вибрация успеха
-            }
+            if (t.lastDone === todayStr) { t.lastDone = null; t.streak = Math.max(0, (t.streak || 1) - 1); }
+            else { t.lastDone = todayStr; t.streak = (t.streak || 0) + 1; tg.HapticFeedback.notificationOccurred('success'); }
             localStorage.setItem('myTrackers', JSON.stringify(trackers));
-            render();
+            renderTrackers();
         }
-
         document.getElementById('add-btn').addEventListener('click', () => {
-            // В будущем здесь будет красивое модальное окно, а пока prompt
-            const name = prompt('Какую привычку добавим? (например: Пить воду, Читать 10 стр.)');
-            if (name && name.trim()) {
-                trackers.push({ name: name.trim(), lastDone: null, streak: 0 });
-                localStorage.setItem('myTrackers', JSON.stringify(trackers));
-                render();
-            }
+            const name = prompt('Название привычки:');
+            if (name && name.trim()) { trackers.push({ name: name.trim(), lastDone: null, streak: 0 }); localStorage.setItem('myTrackers', JSON.stringify(trackers)); renderTrackers(); }
         });
 
-        document.getElementById('premium-btn').addEventListener('click', () => {
-            tg.showAlert('Демо-версия. В реальном приложении здесь откроется оплата через Telegram Stars.');
-        });
-
-        // Запуск
-        render();
+        // --- Проверка сохранённых данных при запуске ---
+        const savedTrackers = JSON.parse(localStorage.getItem('myTrackers') || '[]');
+        if (savedTrackers.length > 0) {
+            trackers = savedTrackers;
+            showScreen('screen-tracker');
+            document.getElementById('greeting').textContent = `Привет, ${userName}`;
+            document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
+            renderTrackers();
+        }
     </script>
 </body>
 </html>
