@@ -21,11 +21,16 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-main); min-height: 100vh; padding-bottom: 20px; }
         .app-container { max-width: 480px; margin: 0 auto; padding: 20px; }
 
-        /* Экраны */
         .screen { display: none; }
         .screen.active { display: block; }
 
-        /* Экран выбора роли */
+        /* Шапка */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .greeting { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
+        .title { font-size: 24px; font-weight: 700; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+
+        /* Экран ролей */
         .role-screen h2 { font-size: 22px; margin-bottom: 8px; text-align: center; }
         .role-screen p { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
         .role-card { background: var(--card-bg); border: 1px solid #334155; border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -34,12 +39,7 @@
         .role-info h3 { font-size: 16px; margin-bottom: 2px; }
         .role-info p { font-size: 12px; color: var(--text-muted); text-align: left; margin: 0; }
 
-        /* Основной экран */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .greeting { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
-        .title { font-size: 24px; font-weight: 700; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
-
+        /* Обычный трекер */
         .progress-section { display: flex; justify-content: center; margin-bottom: 32px; }
         .circular-progress { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(var(--accent) var(--progress, 0%), #334155 0%); display: flex; align-items: center; justify-content: center; position: relative; }
         .circular-progress::before { content: ""; position: absolute; width: 140px; height: 140px; border-radius: 50%; background-color: var(--bg-color); }
@@ -56,10 +56,9 @@
         .tracker-streak { font-size: 12px; color: var(--text-muted); }
         .check-btn { width: 44px; height: 44px; border-radius: 12px; border: 2px solid #475569; background: transparent; color: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .check-btn.done { background: var(--success); border-color: var(--success); color: white; }
-
         .add-btn { margin-top: 16px; width: 100%; padding: 16px; background: var(--card-bg); border: 1px dashed #475569; border-radius: 16px; color: var(--text-muted); font-size: 15px; cursor: pointer; }
 
-        /* Экран цикла */
+        /* Цикл */
         .cycle-header { text-align: center; margin-bottom: 20px; }
         .cycle-header h2 { font-size: 22px; color: var(--cycle-pink); margin-bottom: 4px; }
         .cycle-header p { font-size: 13px; color: var(--text-muted); }
@@ -77,7 +76,7 @@
         .symptom-btn { padding: 12px 8px; background: var(--card-bg); border: 1px solid #334155; border-radius: 12px; color: var(--text-main); font-size: 13px; cursor: pointer; text-align: center; }
         .symptom-btn.active { border-color: var(--cycle-pink); background: rgba(236, 72, 153, 0.1); }
 
-        /* Экран Воронки (Работа) */
+        /* Воронка */
         .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
         .kanban-column { flex: 0 0 160px; background: var(--card-bg); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .kanban-column h3 { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -90,49 +89,26 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- ЭКРАН 1: Выбор роли -->
+        <!-- ЭКРАН 1: Роли -->
         <div class="screen active" id="screen-role">
             <div class="role-screen">
                 <h2>Кто ты?</h2>
                 <p>Выбери шаблон — и мы настроим дневник под тебя</p>
-                <div class="role-card" onclick="selectRole('health')">
-                    <div class="role-icon">💚</div>
-                    <div class="role-info"><h3>Слежу за здоровьем</h3><p>Сон, вода, настроение, таблетки</p></div>
-                </div>
-                <div class="role-card" onclick="selectRole('sport')">
-                    <div class="role-icon">🏋️</div>
-                    <div class="role-info"><h3>Я спортсмен</h3><p>Тренировки, растяжка, белок, вес</p></div>
-                </div>
-                <div class="role-card" onclick="selectRole('study')">
-                    <div class="role-icon">📚</div>
-                    <div class="role-info"><h3>Я учусь</h3><p>Чтение, учёба, концентрация</p></div>
-                </div>
-                <div class="role-card" onclick="selectRole('work')">
-                    <div class="role-icon">💼</div>
-                    <div class="role-info"><h3>Я работаю</h3><p>Воронка задач, фокус, перерывы</p></div>
-                </div>
-                <div class="role-card" onclick="selectRole('cycle')">
-                    <div class="role-icon">🌸</div>
-                    <div class="role-info"><h3>Я девушка</h3><p>Цикл, прогноз, настроение, симптомы</p></div>
-                </div>
+                <div class="role-card" onclick="selectRole('health')"><div class="role-icon">💚</div><div class="role-info"><h3>Слежу за здоровьем</h3><p>Сон, вода, настроение, таблетки</p></div></div>
+                <div class="role-card" onclick="selectRole('sport')"><div class="role-icon">🏋️</div><div class="role-info"><h3>Я спортсмен</h3><p>Тренировки, растяжка, белок, вес</p></div></div>
+                <div class="role-card" onclick="selectRole('study')"><div class="role-icon">📚</div><div class="role-info"><h3>Я учусь</h3><p>Чтение, учёба, концентрация</p></div></div>
+                <div class="role-card" onclick="selectRole('work')"><div class="role-icon">💼</div><div class="role-info"><h3>Я работаю</h3><p>Воронка задач, фокус, перерывы</p></div></div>
+                <div class="role-card" onclick="selectRole('cycle')"><div class="role-icon">🌸</div><div class="role-info"><h3>Я девушка</h3><p>Цикл, прогноз, настроение, симптомы</p></div></div>
             </div>
         </div>
 
-        <!-- ЭКРАН 2: Женский трекер -->
+        <!-- ЭКРАН 2: Цикл -->
         <div class="screen" id="screen-cycle">
             <button class="back-btn" onclick="goBack()">← Назад</button>
-            <div class="cycle-header">
-                <h2>🌸 Мой Цикл</h2>
-                <p>Отмечай начало — мы посчитаем прогноз</p>
-            </div>
-            <div class="cycle-calendar">
-                <div class="calendar-grid" id="calendar-grid"></div>
-            </div>
+            <div class="cycle-header"><h2>🌸 Мой Цикл</h2><p>Отмечай начало — мы посчитаем прогноз</p></div>
+            <div class="cycle-calendar"><div class="calendar-grid" id="calendar-grid"></div></div>
             <button class="mark-btn" id="mark-period-btn">Отметить начало цикла (сегодня)</button>
-            <div class="prediction-card" id="prediction-card">
-                <h3>Следующий цикл ожидается:</h3>
-                <div class="big-date" id="next-period-date">—</div>
-            </div>
+            <div class="prediction-card" id="prediction-card"><h3>Следующий цикл ожидается:</h3><div class="big-date" id="next-period-date">—</div></div>
             <div class="section-title">Как ты себя чувствуешь?</div>
             <div class="symptom-grid" id="symptom-grid">
                 <button class="symptom-btn" onclick="toggleSymptom(this)">😊 Настроение</button>
@@ -141,29 +117,18 @@
             </div>
         </div>
 
-        <!-- ЭКРАН 3: Воронка (Работа) -->
+        <!-- ЭКРАН 3: Воронка -->
         <div class="screen" id="screen-work">
             <button class="back-btn" onclick="goBack()">← Назад</button>
-            <header>
-                <div><div class="greeting">Воронка</div><div class="title">Мои задачи</div></div>
-            </header>
-            <div class="kanban-board" id="kanban-board">
-                <!-- Колонки будут здесь -->
-            </div>
+            <header><div><div class="greeting">Воронка</div><div class="title">Мои задачи</div></div></header>
+            <div class="kanban-board" id="kanban-board"></div>
         </div>
 
-        <!-- ЭКРАН 4: Обычный трекер (для остальных ролей) -->
+        <!-- ЭКРАН 4: Обычный трекер -->
         <div class="screen" id="screen-tracker">
             <button class="back-btn" onclick="goBack()">← Назад</button>
-            <header>
-                <div><div class="greeting" id="greeting">Привет!</div><div class="title">Мой Дневник</div></div>
-                <div class="avatar" id="avatar">?</div>
-            </header>
-            <div class="progress-section">
-                <div class="circular-progress" id="progress-circle" style="--progress: 0%;">
-                    <div class="progress-text"><div class="big-number" id="progress-percent">0%</div><div class="small-text">Выполнено</div></div>
-                </div>
-            </div>
+            <header><div><div class="greeting" id="greeting">Привет!</div><div class="title">Мой Дневник</div></div><div class="avatar" id="avatar">?</div></header>
+            <div class="progress-section"><div class="circular-progress" id="progress-circle" style="--progress: 0%;"><div class="progress-text"><div class="big-number" id="progress-percent">0%</div><div class="small-text">Выполнено</div></div></div></div>
             <div class="section-title">Мои привычки</div>
             <div class="tracker-list" id="tracker-list"></div>
             <button class="add-btn" id="add-btn">➕ Добавить привычку</button>
@@ -178,40 +143,25 @@
         const today = new Date();
         const todayStr = today.toDateString();
 
-        // --- Навигация ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
         function goBack() { showScreen('screen-role'); }
 
-        // --- Выбор роли ---
         function selectRole(role) {
-            if (role === 'cycle') {
-                showScreen('screen-cycle');
-                renderCalendar();
-                loadCycleData();
-            } else if (role === 'work') {
-                showScreen('screen-work');
-                renderKanban();
-            } else {
-                showScreen('screen-tracker');
-                loadTemplate(role);
-                document.getElementById('greeting').textContent = `Привет, ${userName}`;
-                document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
-                renderTrackers();
-            }
+            if (role === 'cycle') { showScreen('screen-cycle'); renderCalendar(); loadCycleData(); }
+            else if (role === 'work') { showScreen('screen-work'); renderKanban(); }
+            else { showScreen('screen-tracker'); loadTemplate(role); document.getElementById('greeting').textContent = `Привет, ${userName}`; document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase(); renderTrackers(); }
         }
 
-        // --- ЖЕНСКИЙ ТРЕКЕР ---
+        // --- Цикл ---
         let cycleData = JSON.parse(localStorage.getItem('cycleData') || '{}');
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const year = today.getFullYear(); const month = today.getMonth();
+            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
             let html = daysOfWeek.map(d => `<div class="calendar-day header">${d}</div>`).join('');
             const startOffset = firstDay === 0 ? 6 : firstDay - 1;
             for (let i = 0; i < startOffset; i++) html += `<div class="calendar-day"></div>`;
@@ -226,117 +176,112 @@
         function loadCycleData() {
             const predEl = document.getElementById('next-period-date');
             if (cycleData.lastPeriod) {
-                const last = new Date(cycleData.lastPeriod);
-                const next = new Date(last);
-                next.setDate(next.getDate() + 28);
+                const last = new Date(cycleData.lastPeriod); const next = new Date(last); next.setDate(next.getDate() + 28);
                 predEl.textContent = next.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-            } else { predEl.textContent = 'Отметь начало'; }
+            } else predEl.textContent = 'Отметь начало';
         }
         document.getElementById('mark-period-btn').addEventListener('click', () => {
             if (!cycleData.periods) cycleData.periods = [];
             if (!cycleData.periods.includes(todayStr)) cycleData.periods.push(todayStr);
             cycleData.lastPeriod = today.toISOString();
             localStorage.setItem('cycleData', JSON.stringify(cycleData));
-            renderCalendar(); loadCycleData();
-            tg.HapticFeedback.notificationOccurred('success');
+            renderCalendar(); loadCycleData(); tg.HapticFeedback.notificationOccurred('success');
             tg.showAlert('Отмечено! Прогноз обновлён 🌸');
         });
-        function toggleSymptom(btn) {
-            btn.classList.toggle('active');
-            tg.HapticFeedback.impactOccurred('light');
-        }
+        function toggleSymptom(btn) { btn.classList.toggle('active'); tg.HapticFeedback.impactOccurred('light'); }
 
-        // --- ВОРОНКА (РАБОТА) ---
+        // --- Воронка ---
         let kanbanData = JSON.parse(localStorage.getItem('kanbanData') || '{"todo":[],"inprogress":[],"done":[]}');
-        const columns = [
-            { key: 'todo', title: 'Сделать' },
-            { key: 'inprogress', title: 'В работе' },
-            { key: 'done', title: 'Готово' }
-        ];
+        const columns = [{ key: 'todo', title: 'Сделать' }, { key: 'inprogress', title: 'В работе' }, { key: 'done', title: 'Готово' }];
         function renderKanban() {
             const board = document.getElementById('kanban-board');
             board.innerHTML = columns.map(col => {
-                const cards = kanbanData[col.key].map((task, i) => 
-                    `<div class="kanban-card" onclick="moveTask('${col.key}', ${i})">${task}</div>`
-                ).join('');
-                return `
-                <div class="kanban-column">
-                    <h3>${col.title}</h3>
-                    ${cards}
-                    <button class="kanban-add" onclick="addTask('${col.key}')">+ Добавить</button>
-                </div>`;
+                const cards = kanbanData[col.key].map((task, i) => `<div class="kanban-card" onclick="moveTask('${col.key}', ${i})">${task}</div>`).join('');
+                return `<div class="kanban-column"><h3>${col.title}</h3>${cards}<button class="kanban-add" onclick="addTask('${col.key}')">+ Добавить</button></div>`;
             }).join('');
         }
         function addTask(colKey) {
             const name = prompt('Название задачи:');
-            if (name && name.trim()) {
-                kanbanData[colKey].push(name.trim());
-                localStorage.setItem('kanbanData', JSON.stringify(kanbanData));
-                renderKanban();
-                tg.HapticFeedback.impactOccurred('light');
-            }
+            if (name && name.trim()) { kanbanData[colKey].push(name.trim()); localStorage.setItem('kanbanData', JSON.stringify(kanbanData)); renderKanban(); tg.HapticFeedback.impactOccurred('light'); }
         }
         function moveTask(colKey, index) {
-            const task = kanbanData[colKey][index];
-            const nextMap = { 'todo': 'inprogress', 'inprogress': 'done', 'done': 'todo' };
-            const nextCol = nextMap[colKey];
-            kanbanData[colKey].splice(index, 1);
-            kanbanData[nextCol].push(task);
-            localStorage.setItem('kanbanData', JSON.stringify(kanbanData));
-            renderKanban();
-            tg.HapticFeedback.notificationOccurred('success');
+            const task = kanbanData[colKey][index]; const nextMap = { 'todo': 'inprogress', 'inprogress': 'done', 'done': 'todo' };
+            const nextCol = nextMap[colKey]; kanbanData[colKey].splice(index, 1); kanbanData[nextCol].push(task);
+            localStorage.setItem('kanbanData', JSON.stringify(kanbanData)); renderKanban(); tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // --- ОБЫЧНЫЙ ТРЕКЕР ---
+        // --- Обычный трекер (ИСПРАВЛЕННЫЙ) ---
         const templates = {
             health: ['😴 Сон 8 часов', '💧 Вода 2 литра', '😊 Настроение', '💊 Витамины'],
             sport: ['🏋️ Тренировка', '🧘 Растяжка', '🥩 Белок', '⚖️ Взвешивание'],
             study: ['📖 Чтение 20 мин', '✍️ Учёба', '🎯 Концентрация']
         };
         let trackers = [];
+
         function loadTemplate(role) {
-            if (templates[role]) trackers = templates[role].map(name => ({ name, lastDone: null, streak: 0 }));
+            if (templates[role]) trackers = templates[role].map(name => ({ name, history: [], streak: 0 }));
             else trackers = [];
             localStorage.setItem('myTrackers', JSON.stringify(trackers));
         }
+
+        function isDoneToday(tracker) {
+            return tracker.history && tracker.history.includes(todayStr);
+        }
+
+        function recalcStreak(tracker) {
+            if (!tracker.history || tracker.history.length === 0) { tracker.streak = 0; return; }
+            const sorted = [...tracker.history].sort((a, b) => new Date(b) - new Date(a));
+            let streak = 1;
+            for (let i = 1; i < sorted.length; i++) {
+                const prev = new Date(sorted[i - 1]); const curr = new Date(sorted[i]);
+                const diff = (prev - curr) / (1000 * 60 * 60 * 24);
+                if (diff === 1) streak++; else break;
+            }
+            const lastDate = new Date(sorted[0]); const todayDate = new Date(todayStr);
+            const diffDays = (todayDate - lastDate) / (1000 * 60 * 60 * 24);
+            tracker.streak = diffDays > 1 ? 0 : streak;
+        }
+
         function renderTrackers() {
             const list = document.getElementById('tracker-list');
             const circle = document.getElementById('progress-circle');
             const percentText = document.getElementById('progress-percent');
             if (!trackers.length) { list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);">Нет привычек</div>`; return; }
             list.innerHTML = trackers.map((t, i) => {
-                const done = t.lastDone === todayStr;
+                const done = isDoneToday(t); recalcStreak(t);
+                const last7 = [];
+                for (let d = 6; d >= 0; d--) {
+                    const date = new Date(); date.setDate(date.getDate() - d);
+                    const dateStr = date.toDateString();
+                    last7.push(t.history && t.history.includes(dateStr) ? '●' : '○');
+                }
                 return `<div class="tracker-card ${done ? 'done' : ''}">
-                    <div class="tracker-info"><div class="tracker-name">${t.name}</div><div class="tracker-streak">🔥 ${t.streak || 0}</div></div>
+                    <div class="tracker-info"><div class="tracker-name">${t.name}</div><div class="tracker-streak">🔥 ${t.streak || 0} • ${last7.join(' ')}</div></div>
                     <button class="check-btn ${done ? 'done' : ''}" onclick="toggleTracker(${i})">${done ? '✓' : ''}</button>
                 </div>`;
             }).join('');
-            const completed = trackers.filter(t => t.lastDone === todayStr).length;
+            const completed = trackers.filter(t => isDoneToday(t)).length;
             const percent = Math.round((completed / trackers.length) * 100);
             circle.style.setProperty('--progress', `${percent}%`);
             percentText.textContent = `${percent}%`;
         }
+
         function toggleTracker(i) {
-            const t = trackers[i];
-            if (t.lastDone === todayStr) { t.lastDone = null; t.streak = Math.max(0, (t.streak || 1) - 1); }
-            else { t.lastDone = todayStr; t.streak = (t.streak || 0) + 1; tg.HapticFeedback.notificationOccurred('success'); }
-            localStorage.setItem('myTrackers', JSON.stringify(trackers));
-            renderTrackers();
+            const t = trackers[i]; if (!t.history) t.history = [];
+            if (isDoneToday(t)) t.history = t.history.filter(d => d !== todayStr);
+            else t.history.push(todayStr);
+            recalcStreak(t); localStorage.setItem('myTrackers', JSON.stringify(trackers)); renderTrackers();
+            tg.HapticFeedback.notificationOccurred('success');
         }
+
         document.getElementById('add-btn').addEventListener('click', () => {
             const name = prompt('Название привычки:');
-            if (name && name.trim()) { trackers.push({ name: name.trim(), lastDone: null, streak: 0 }); localStorage.setItem('myTrackers', JSON.stringify(trackers)); renderTrackers(); }
+            if (name && name.trim()) { trackers.push({ name: name.trim(), history: [], streak: 0 }); localStorage.setItem('myTrackers', JSON.stringify(trackers)); renderTrackers(); }
         });
 
-        // --- Проверка сохранённых данных при запуске ---
+        // --- Запуск ---
         const savedTrackers = JSON.parse(localStorage.getItem('myTrackers') || '[]');
-        if (savedTrackers.length > 0) {
-            trackers = savedTrackers;
-            showScreen('screen-tracker');
-            document.getElementById('greeting').textContent = `Привет, ${userName}`;
-            document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
-            renderTrackers();
-        }
+        if (savedTrackers.length > 0) { trackers = savedTrackers; showScreen('screen-tracker'); document.getElementById('greeting').textContent = `Привет, ${userName}`; document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase(); renderTrackers(); }
     </script>
 </body>
 </html>
