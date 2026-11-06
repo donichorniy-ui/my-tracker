@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мой Дневник</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+        header { text-align: center; padding: 20px 0; }
+        h1 { font-size: 20px; font-weight: 600; }
+        .subtitle { font-size: 13px; opacity: 0.6; margin-top: 4px; }
+        .tracker-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        .tracker { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .tracker-info { flex: 1; }
+        .tracker-name { font-size: 15px; font-weight: 500; }
+        .tracker-streak { font-size: 12px; opacity: 0.5; margin-top: 2px; }
+        .tracker-btn { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); background: transparent; color: var(--text); font-size: 22px; cursor: pointer; transition: all 0.2s; }
+        .tracker-btn.done { background: var(--accent); border-color: var(--accent); color: #0d1117; }
+        .add-btn { width: 100%; padding: 14px; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; color: var(--accent); font-size: 15px; cursor: pointer; margin-top: 10px; }
+        .premium { background: linear-gradient(135deg, #1f6feb, #58a6ff); border-radius: 16px; padding: 20px; margin-top: 24px; text-align: center; }
+        .premium h3 { font-size: 16px; margin-bottom: 8px; }
+        .premium p { font-size: 13px; opacity: 0.9; margin-bottom: 14px; }
+        .premium button { background: #0d1117; color: #58a6ff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>📊 Мой Дневник</h1>
+            <p class="subtitle" id="greeting">Загрузка...</p>
+        </header>
+        <div class="tracker-list" id="tracker-list"></div>
+        <button class="add-btn" id="add-btn">+ Добавить трекер</button>
+        <div class="premium">
+            <h3>✨ Premium</h3>
+            <p>Безлимит трекеров. История навсегда. Напоминания.</p>
+            <button id="premium-btn">50 Stars / месяц</button>
+        </div>
+    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready(); tg.expand();
+        const user = tg.initDataUnsafe?.user;
+        document.getElementById('greeting').textContent = user ? `Привет, ${user.first_name}` : 'Привет';
+
+        let trackers = JSON.parse(localStorage.getItem('trackers') || '[]');
+        const today = new Date().toDateString();
+
+        function render() {
+            const list = document.getElementById('tracker-list');
+            if (!trackers.length) {
+                list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:20px;">Добавь первый трекер</p>';
+                return;
+            }
+            list.innerHTML = trackers.map((t, i) => {
+                const done = t.lastDone === today;
+                const streak = t.streak || 0;
+                return `<div class="tracker">
+                    <div class="tracker-info">
+                        <div class="tracker-name">${t.name}</div>
+                        <div class="tracker-streak">${streak} дней подряд</div>
+                    </div>
+                    <button class="tracker-btn ${done ? 'done' : ''}" onclick="toggle(${i})">${done ? '✓' : '○'}</button>
+                </div>`;
+            }).join('');
+        }
+
+        function toggle(i) {
+            const t = trackers[i];
+            if (t.lastDone === today) {
+                t.lastDone = null;
+                t.streak = Math.max(0, (t.streak || 1) - 1);
+            } else {
+                t.lastDone = today;
+                t.streak = (t.streak || 0) + 1;
+            }
+            localStorage.setItem('trackers', JSON.stringify(trackers));
+            render();
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        document.getElementById('add-btn').addEventListener('click', () => {
+            const name = prompt('Название трекера (например: Сон 8 часов, Без сахара, Чтение):');
+            if (name && name.trim()) {
+                trackers.push({ name: name.trim(), lastDone: null, streak: 0 });
+                localStorage.setItem('trackers', JSON.stringify(trackers));
+                render();
+            }
+        });
+
+        document.getElementById('premium-btn').addEventListener('click', () => {
+            tg.showAlert('Демо. В реальной версии здесь откроется оплата через Telegram Stars.');
+        });
+
+        render();
+    </script>
+</body>
+</html>
