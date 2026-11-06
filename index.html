@@ -6,96 +6,376 @@
     <title>Мой Дневник</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-        .app { max-width: 480px; margin: 0 auto; padding: 16px; }
-        header { text-align: center; padding: 20px 0; }
-        h1 { font-size: 20px; font-weight: 600; }
-        .subtitle { font-size: 13px; opacity: 0.6; margin-top: 4px; }
-        .tracker-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
-        .tracker { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        :root {
+            --bg-color: #0f172a; /* Глубокий синий */
+            --card-bg: #1e293b;
+            --accent: #6366f1; /* Индиго */
+            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 20px;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .greeting {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Прогресс-круг */
+        .progress-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .circular-progress {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) var(--progress, 0%), #334155 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+            transition: background 0.5s ease;
+        }
+
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background-color: var(--bg-color);
+        }
+
+        .progress-text {
+            position: relative;
+            text-align: center;
+        }
+
+        .progress-text .big-number {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .progress-text .small-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Список трекеров */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .tracker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tracker-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, opacity 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .tracker-card.done {
+            opacity: 0.7;
+            border-color: var(--success);
+        }
+
         .tracker-info { flex: 1; }
-        .tracker-name { font-size: 15px; font-weight: 500; }
-        .tracker-streak { font-size: 12px; opacity: 0.5; margin-top: 2px; }
-        .tracker-btn { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); background: transparent; color: var(--text); font-size: 22px; cursor: pointer; transition: all 0.2s; }
-        .tracker-btn.done { background: var(--accent); border-color: var(--accent); color: #0d1117; }
-        .add-btn { width: 100%; padding: 14px; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; color: var(--accent); font-size: 15px; cursor: pointer; margin-top: 10px; }
-        .premium { background: linear-gradient(135deg, #1f6feb, #58a6ff); border-radius: 16px; padding: 20px; margin-top: 24px; text-align: center; }
-        .premium h3 { font-size: 16px; margin-bottom: 8px; }
-        .premium p { font-size: 13px; opacity: 0.9; margin-bottom: 14px; }
-        .premium button { background: #0d1117; color: #58a6ff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+        
+        .tracker-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tracker-streak {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .check-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid #475569;
+            background: transparent;
+            color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .check-btn.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .add-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 16px;
+            background: var(--card-bg);
+            border: 1px dashed #475569;
+            border-radius: 16px;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-btn:active { transform: scale(0.98); }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Premium */
+        .premium-card {
+            margin-top: 24px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            opacity: 0.5;
+        }
+
+        .premium-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #a855f7;
+        }
+
+        .premium-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .premium-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .premium-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
-    <div class="app">
+    <div class="app-container">
+        <!-- Шапка -->
         <header>
-            <h1>📊 Мой Дневник</h1>
-            <p class="subtitle" id="greeting">Загрузка...</p>
+            <div>
+                <div class="greeting" id="greeting">Привет!</div>
+                <div class="title">Мой Дневник</div>
+            </div>
+            <div class="avatar" id="avatar">?</div>
         </header>
-        <div class="tracker-list" id="tracker-list"></div>
-        <button class="add-btn" id="add-btn">+ Добавить трекер</button>
-        <div class="premium">
-            <h3>✨ Premium</h3>
-            <p>Безлимит трекеров. История навсегда. Напоминания.</p>
-            <button id="premium-btn">50 Stars / месяц</button>
+
+        <!-- Круговой прогресс -->
+        <div class="progress-section">
+            <div class="circular-progress" id="progress-circle" style="--progress: 0%;">
+                <div class="progress-text">
+                    <div class="big-number" id="progress-percent">0%</div>
+                    <div class="small-text">Выполнено</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список -->
+        <div class="section-title">Мои привычки</div>
+        <div class="tracker-list" id="tracker-list">
+            <!-- Сюда будут вставляться карточки -->
+        </div>
+        <button class="add-btn" id="add-btn">
+            <span>➕</span> Добавить новую привычку
+        </button>
+
+        <!-- Premium -->
+        <div class="premium-card">
+            <div class="premium-title">✨ Premium Доступ</div>
+            <div class="premium-desc">Безлимит привычек, детальная статистика и умные напоминания.</div>
+            <button class="premium-btn" id="premium-btn">Попробовать за 50 Stars</button>
         </div>
     </div>
+
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready(); tg.expand();
-        const user = tg.initDataUnsafe?.user;
-        document.getElementById('greeting').textContent = user ? `Привет, ${user.first_name}` : 'Привет';
+        tg.ready(); 
+        tg.expand();
 
-        let trackers = JSON.parse(localStorage.getItem('trackers') || '[]');
+        // Данные пользователя
+        const user = tg.initDataUnsafe?.user;
+        const userName = user ? user.first_name : 'Друг';
+        document.getElementById('greeting').textContent = `Привет, ${userName}`;
+        document.getElementById('avatar').textContent = userName.charAt(0).toUpperCase();
+
+        // Локальное состояние
+        let trackers = JSON.parse(localStorage.getItem('myTrackers') || '[]');
         const today = new Date().toDateString();
 
         function render() {
             const list = document.getElementById('tracker-list');
+            const circle = document.getElementById('progress-circle');
+            const percentText = document.getElementById('progress-percent');
+
             if (!trackers.length) {
-                list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:20px;">Добавь первый трекер</p>';
+                list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 14px;">Добавь свою первую привычку!</div>`;
+                circle.style.setProperty('--progress', '0%');
+                percentText.textContent = '0%';
                 return;
             }
+
+            // Рендер списка
             list.innerHTML = trackers.map((t, i) => {
                 const done = t.lastDone === today;
-                const streak = t.streak || 0;
-                return `<div class="tracker">
+                return `
+                <div class="tracker-card ${done ? 'done' : ''}">
                     <div class="tracker-info">
                         <div class="tracker-name">${t.name}</div>
-                        <div class="tracker-streak">${streak} дней подряд</div>
+                        <div class="tracker-streak">🔥 ${t.streak || 0} дней подряд</div>
                     </div>
-                    <button class="tracker-btn ${done ? 'done' : ''}" onclick="toggle(${i})">${done ? '✓' : '○'}</button>
+                    <button class="check-btn ${done ? 'done' : ''}" onclick="toggle(${i})">
+                        ${done ? '✓' : ''}
+                    </button>
                 </div>`;
             }).join('');
+
+            // Считаем прогресс на сегодня
+            const total = trackers.length;
+            const completed = trackers.filter(t => t.lastDone === today).length;
+            const percent = Math.round((completed / total) * 100);
+            
+            circle.style.setProperty('--progress', `${percent}%`);
+            percentText.textContent = `${percent}%`;
         }
 
         function toggle(i) {
             const t = trackers[i];
             if (t.lastDone === today) {
+                // Отменяем
                 t.lastDone = null;
                 t.streak = Math.max(0, (t.streak || 1) - 1);
             } else {
+                // Выполняем
                 t.lastDone = today;
                 t.streak = (t.streak || 0) + 1;
+                tg.HapticFeedback.notificationOccurred('success'); // Вибрация успеха
             }
-            localStorage.setItem('trackers', JSON.stringify(trackers));
+            localStorage.setItem('myTrackers', JSON.stringify(trackers));
             render();
-            tg.HapticFeedback.impactOccurred('light');
         }
 
         document.getElementById('add-btn').addEventListener('click', () => {
-            const name = prompt('Название трекера (например: Сон 8 часов, Без сахара, Чтение):');
+            // В будущем здесь будет красивое модальное окно, а пока prompt
+            const name = prompt('Какую привычку добавим? (например: Пить воду, Читать 10 стр.)');
             if (name && name.trim()) {
                 trackers.push({ name: name.trim(), lastDone: null, streak: 0 });
-                localStorage.setItem('trackers', JSON.stringify(trackers));
+                localStorage.setItem('myTrackers', JSON.stringify(trackers));
                 render();
             }
         });
 
         document.getElementById('premium-btn').addEventListener('click', () => {
-            tg.showAlert('Демо. В реальной версии здесь откроется оплата через Telegram Stars.');
+            tg.showAlert('Демо-версия. В реальном приложении здесь откроется оплата через Telegram Stars.');
         });
 
+        // Запуск
         render();
     </script>
 </body>
